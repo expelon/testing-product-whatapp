@@ -75,6 +75,7 @@ export default function Home() {
       'Hello, I want to purchase the following product:',
       '',
       `Product: ${product.name}`,
+      '',
       `Description: ${product.description}`,
       '',
       `Price: $${product.price}`,
