@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Star, Loader2 } from 'lucide-react';
+import { ShoppingCart, Star } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -67,25 +67,20 @@ const products: Product[] = [
 
 export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
 
   const handlePurchaseNow = (product: Product) => {
-    setLoadingProductId(product.id);
+    const phone = '918943473450';
 
-    setTimeout(() => {
-      const phone = '918943473450';
+    const text = [
+      'Hello, I want to purchase the following product:',
+      '',
+      `Product: ${product.name}`,
+      `Description: ${product.description}`,
+      `Price: $${product.price}`,
+    ].join('\n');
 
-      const text = [
-        'Hello, I want to purchase the following product:',
-        '',
-        `Product: ${product.name}`,
-        `Description: ${product.description}`,
-        `Price: $${product.price}`,
-      ].join('\n');
-
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-      window.location.href = url;
-    }, 1500);
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    window.location.href = url;
   };
 
   return (
@@ -165,16 +160,9 @@ export default function Home() {
                   className="w-full gap-2"
                   size="lg"
                   onClick={() => handlePurchaseNow(product)}
-                  disabled={loadingProductId !== null}
                 >
-                  {loadingProductId === product.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      <ShoppingCart className="h-4 w-4" />
-                      Purchase Now
-                    </>
-                  )}
+                  <ShoppingCart className="h-4 w-4" />
+                  Purchase Now
                 </Button>
               </CardFooter>
             </Card>
