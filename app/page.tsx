@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Star } from 'lucide-react';
+import { ShoppingCart, Star, Loader2 } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -65,15 +66,26 @@ const products: Product[] = [
 ];
 
 export default function Home() {
-  const handlePurchaseNow = (product: Product) => {
-    const phone = '918943473450';
-    const message = `Hello, I want to purchase the following product:%0A%0A` +
-      `*Product*: ${encodeURIComponent(product.name)}%0A` +
-      `*Description*: ${encodeURIComponent(product.description)}%0A` +
-      `*Price*: $${encodeURIComponent(product.price.toString())}`;
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
 
-    const url = `https://wa.me/${phone}?text=${message}`;
-    window.open(url, '_blank');
+  const handlePurchaseNow = (product: Product) => {
+    setLoadingProductId(product.id);
+
+    setTimeout(() => {
+      const phone = '918943473450';
+
+      const text = [
+        'Hello, I want to purchase the following product:',
+        '',
+        `Product: ${product.name}`,
+        `Description: ${product.description}`,
+        `Price: $${product.price}`,
+      ].join('\n');
+
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+      window.location.href = url;
+    }, 1500);
   };
 
   return (
@@ -81,20 +93,46 @@ export default function Home() {
       <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <nav className="flex space-x-6">
+            <nav className="hidden md:flex space-x-6">
               <a href="#" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Products</a>
               <a href="#" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Categories</a>
               <a href="#" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Deals</a>
               <a href="#" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">About</a>
             </nav>
-            <div className="flex items-center">
-              <button className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
+
+            <div className="flex items-center gap-3">
+              <button className="hidden md:inline-flex p-2 rounded-lg hover:bg-slate-100 transition-colors">
                 <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
+
+              <button
+                className="inline-flex md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                onClick={() => setMobileNavOpen((prev) => !prev)}
+                aria-label="Toggle navigation menu"
+              >
+                <svg className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {mobileNavOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
             </div>
           </div>
+
+          {mobileNavOpen && (
+            <div className="md:hidden pb-3 space-y-2">
+              <nav className="flex flex-col space-y-2">
+                <a href="#" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Products</a>
+                <a href="#" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Categories</a>
+                <a href="#" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">Deals</a>
+                <a href="#" className="text-slate-700 hover:text-blue-600 font-medium transition-colors">About</a>
+              </nav>
+            </div>
+          )}
         </div>
       </header>
 
@@ -123,9 +161,20 @@ export default function Home() {
                 <p className="text-2xl font-bold text-slate-900">${product.price}</p>
               </CardContent>
               <CardFooter className="p-6 pt-0">
-                <Button className="w-full gap-2" size="lg" onClick={() => handlePurchaseNow(product)}>
-                  <ShoppingCart className="h-4 w-4" />
-                  Purchase Now
+                <Button
+                  className="w-full gap-2"
+                  size="lg"
+                  onClick={() => handlePurchaseNow(product)}
+                  disabled={loadingProductId !== null}
+                >
+                  {loadingProductId === product.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <ShoppingCart className="h-4 w-4" />
+                      Purchase Now
+                    </>
+                  )}
                 </Button>
               </CardFooter>
             </Card>
