@@ -76,6 +76,7 @@ export default function Home() {
       '',
       `Product: ${product.name}`,
       `Description: ${product.description}`,
+      '',
       `Price: $${product.price}`,
     ].join('\n');
 
